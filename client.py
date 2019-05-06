@@ -85,7 +85,7 @@ def udp_com():
 if (sys.argv[3] == '-t' or sys.argv[3] == '--tcp'):
 	tcp_com()
 
-if (sys.argv[3] == '-u' or sys.argv[3] == '-udp'):
+if (sys.argv[3] == '-u' or sys.argv[3] == '--udp'):
 	udp_com()
 
 if (sys.argv[3] == '-e' or sys.argv[3] == '--exit'):
