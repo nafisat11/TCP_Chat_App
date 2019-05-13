@@ -47,26 +47,8 @@ def tcp_com():
 
     print(welcome_msg + " Connected to TCP server. You can now start sending messages.")
 
-    while True:
-        reading_data, writing_data, socket_error = select.select(
-            [sys.stdin, s_tcp], [], []
-        )
-
-        for s in reading_data:
-            if s == s_tcp:
-                received_data = s_tcp.recv(1024).decode()
-
-                if not received_data:
-                    print("\nDisconnected from server. Please start a new session")
-                    sys.exit(1)
-                else:
-                    sys.stdout.write("Server reply: " + received_data)
-                    sys.stdout.flush()
-
-            else:
-                msg = sys.stdin.readline()
-                s_tcp.send(msg.encode())
-                sys.stdout.flush()
+    epoll_fd = select.epoll()
+    epoll_fd.register(s_tcp.fileno(), select.EPOLLIN)
 
 
 def udp_com():
