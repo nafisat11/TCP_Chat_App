@@ -49,6 +49,32 @@ def tcp_com():
 
     epoll_fd = select.epoll()
     epoll_fd.register(s_tcp.fileno(), select.EPOLLIN)
+    epoll_fd.register(0, select.EPOLLIN)
+    epoll_fd.register(1, select.EPOLLOUT)
+
+    while True:
+        events = epoll_fd.poll(1)
+        for fd, event in events:
+
+            if event & select.EPOLLIN:
+                received_data = s_tcp.recv(1024).decode()
+
+                if not received_data:
+                    print("Disconnected")
+                    sys.exit(1)
+                else:
+                    sys.stdout.write("Server reply: " + received_data)
+                    sys.stdout.flush()
+
+            if event & select.EPOLLOUT:
+                msg = sys.stdin.readline()
+                s_tcp.send(msg.encode())
+                sys.stdout.flush()
+
+    epoll_fd.unregister(s_tcp.fileno())
+    epoll_fd.unregister(0)
+    epoll_fd.unregister(1)
+    epoll_fd.close()
 
 
 def udp_com():
@@ -60,7 +86,7 @@ def udp_com():
 
     print(welcome_msg + " Connected to UDP server. You can now start sending messages.")
 
-    while 1:
+    while True:
         msg = input("Enter message to send: ")
         s_udp.sendto(msg.encode(), (host, port))
         received_data = s_udp.recvfrom(1024).decode()
